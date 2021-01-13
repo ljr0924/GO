@@ -15,7 +15,7 @@ func main() {
 	}
 
 	// 使用make初始化
-	profile_make := make(map[string]string)
+	profile_make := make(map[string]string, 10)
 	profile_make["name"] = "make"
 	profile_make["age"] = "18"
 	fmt.Printf("%+v\n", profile_make)
@@ -38,5 +38,8 @@ func main() {
 	} else {
 		fmt.Printf("存在key为notExists的值, value: %s\n", v)
 	}
+
+	// map长度
+	fmt.Printf("map 长度： %d, 容量：%d", len(profile_make))
 
 }
