@@ -1,9 +1,10 @@
-package main
+package function
 
 import "fmt"
+import "testing"
 
 
-func main() {
+func TestFunc1(t *testing.T) {
 
     // 无返回值函数
     funcWithoutReturn("hello", "world")
@@ -24,9 +25,9 @@ func main() {
     fmt.Println("内存地址为 ", &a4)
     testCopy(a4)
 
-	fmt.Println("add(1, 2) => ", add(1, 2))
-	fmt.Println("sub(1, 2) => ", sub(1, 2))
-	fmt.Println("mul(1, 2) => ", mul(1, 2))
+    fmt.Println("add(1, 2) => ", add(1, 2))
+    fmt.Println("sub(1, 2) => ", sub(1, 2))
+    fmt.Println("mul(1, 2) => ", mul(1, 2))
     fmt.Println("div(1, 2) => ", div(1, 2))
     fmt.Println("div(3, 2) => ", div(3, 2))
     fmt.Println("div(1, 2) => ", div(1, 0))
@@ -55,7 +56,8 @@ func mul(num1, num2 int) int {
 
 func div(num1, num2 float64) float64 {
     if num2 == 0 {
-        panic("分母不能为零")
+        fmt.Println("分母不能为零")
+        return 0
     }
     return num1 / num2
 }
