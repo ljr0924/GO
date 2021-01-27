@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"sync"
-	"time"
+    "fmt"
+    "sync"
+    "time"
 )
 
 
@@ -11,11 +11,11 @@ var mtx sync.Mutex
 
 func main() {
 
-	var sMap sync.Map
-	var wg sync.WaitGroup
-	for i := 0; i < 100; i++ {
-		sMap.Store(fmt.Sprintf("key%d", i), i)
-	}
+    var sMap sync.Map
+    var wg sync.WaitGroup
+    for i := 0; i < 100; i++ {
+        sMap.Store(fmt.Sprintf("key%d", i), i)
+    }
 
 	wg.Add(2)
 	for i := 1; i < 3; i++ {
@@ -33,7 +33,6 @@ func main() {
 		}(i)
 	}
 	wg.Wait()
-
 
 }
 

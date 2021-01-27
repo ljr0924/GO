@@ -1,4 +1,4 @@
-package main
+package string
 
 import "testing"
 import "strings"
@@ -19,34 +19,33 @@ ok      std/my_demo/string      4.417s
 */
 
 
-
 func test() string {
-	var s string
-	for i := 0; i < 1000; i++ {
+    var s string
+    for i := 0; i < 1000; i++ {
         s += "a"
-	}
+    }
 
-	return s
+    return s
 
 }
 
 func test1() string {
-	s := make([]string, 1000)
-	for i:=0;i<1000;i++ {
-		s[i] = "a"
-	}
-	return strings.Join(s, "")
+    s := make([]string, 1000)
+    for i:=0;i<1000;i++ {
+        s[i] = "a"
+    }
+    return strings.Join(s, "")
 }
 
 
 func BenchmarkTest(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		test()
-	}
+    for i := 0; i < b.N; i++ {
+        test()
+    }
 }
 
 func BenchmarkTest1(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		test1()
-	}
+    for i := 0; i < b.N; i++ {
+        test1()
+    }
 }
