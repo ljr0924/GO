@@ -1,6 +1,9 @@
-package main
+package variable
 
-import "fmt"
+import (
+    "fmt"
+    "testing"
+)
 
 const (
     var1 = iota
@@ -9,7 +12,7 @@ const (
     var4
 )
 
-func main() {
+func TestIota(t *testing.T) {
     fmt.Println("var1 = ", var1)
     fmt.Println("var2 = ", var2)
     fmt.Println("var3 = ", var3)

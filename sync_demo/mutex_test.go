@@ -1,12 +1,13 @@
-package main
+package sync_demo
 
 import (
     "fmt"
     "sync"
+    "testing"
 )
 
 
-func main (){
+func TestMutex(t *testing.T) {
     // 同步 Map
     syncMap := sync.Map{}
 

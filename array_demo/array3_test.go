@@ -1,8 +1,11 @@
-package main
+package array_demo
 
-import "fmt"
+import (
+	"fmt"
+	"testing"
+)
 
-func main() {
+func TestArrayPtr(t *testing.T) {
 
 	// 字符指针数组，存储字符串类型指针的数组
 	stringPtrArray := [2]*string{}
@@ -10,8 +13,8 @@ func main() {
 	// 数组指针
 	p := &stringPtrArray
 
-	fmt.Printf("%t\n", stringPtrArray)
-	fmt.Printf("%t\n", p)
+	fmt.Printf("%T\n", stringPtrArray)
+	fmt.Printf("%T\n", p)
 
 	s1 := "123"
 	stringPtrArray[1] = &s1

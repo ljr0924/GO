@@ -1,11 +1,12 @@
-package main
+package sync_demo
 
 import (
     "fmt"
     "sync"
+    "testing"
 )
 
-func main() {
+func TestOrderPrint(t *testing.T) {
 
     wg1 := new(sync.WaitGroup)
     fishCounter := 0

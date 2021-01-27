@@ -1,8 +1,11 @@
-package main
+package slice_demo
 
-import "fmt"
+import (
+    "fmt"
+    "testing"
+)
 
-func main() {
+func TestSlice3(t *testing.T) {
 
 	a := make([]int, 1)
 	b := make([]int, 1)

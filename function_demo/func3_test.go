@@ -1,4 +1,4 @@
-package function
+package function_demo
 
 import "sync"
 import "testing"

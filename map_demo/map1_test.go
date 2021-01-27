@@ -1,4 +1,4 @@
-package map
+package map_demo
 
 import "fmt"
 import "testing"

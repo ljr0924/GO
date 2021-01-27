@@ -1,15 +1,16 @@
-package main
+package sync_demo
 
 import (
     "fmt"
     "sync"
-    "time"
+	"testing"
+	"time"
 )
 
 
 var mtx sync.Mutex
 
-func main() {
+func TestSyncMap(t *testing.T) {
 
     var sMap sync.Map
     var wg sync.WaitGroup
