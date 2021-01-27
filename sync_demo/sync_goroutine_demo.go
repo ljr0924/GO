@@ -6,6 +6,9 @@ import (
 	"time"
 )
 
+
+var mtx sync.Mutex
+
 func main() {
 
 	var sMap sync.Map
@@ -21,14 +24,26 @@ func main() {
 			for j := 0; j < 100; j++ {
 				time.Sleep(10)
 				key := fmt.Sprintf("key%d", j)
-				value, _ := sMap.Load(key)
-				fmt.Printf("%s key: %s value: %v\n", name, key, value)
-				sMap.Delete(key)
+				v, ok := LoadAndDelete(&sMap, key)
+				if ok {
+					fmt.Printf("%s key: %s value: %v\n", name, key, v)
+				}
 			}
 			wg.Done()
 		}(i)
 	}
 	wg.Wait()
 
+
+}
+
+func LoadAndDelete(m *sync.Map, key interface{}) (interface{}, bool) {
+	mtx.Lock()
+	v, ok := m.Load(key)
+	if ok {
+		m.Delete(key)
+	}
+	mtx.Unlock()
+	return v, ok
 
 }
