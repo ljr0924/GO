@@ -49,13 +49,21 @@ func TestTagAnd(t *testing.T) {
 
 }
 
-// 属于标签1单不属于标签2的客户
+// 仅包含标签1或标签2
+// 连续异或不符合 仅包含条件
 func TestTagXOR(t *testing.T) {
-
-    c.BitOpXor("tag_2_XOR", "tag_2")
-    c.BitOpAnd("ret3", "tag_1", "tag_2_XOR")
+    c.BitOpXor("ret3", "tag_2", "tag_1")
     r, _ := c.BitCount("ret3", nil).Result()
     t.Log("ret3 ", r)
+}
 
-    c.Del("ret3")
+// 属于标签1但不属于标签2的客户
+func TestTag1(t *testing.T) {
+
+    c.BitOpNot("tag_2_NOT", "tag_2")
+    c.BitOpAnd("ret4", "tag_1", "tag_2_NOT")
+    r, _ := c.BitCount("ret4", nil).Result()
+    t.Log("ret4 ", r)
+
+    c.Del("ret3", "ret4")
 }
