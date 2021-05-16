@@ -2,7 +2,6 @@ package redis_demo
 
 import (
 	"fmt"
-	"go_demo/redis_demo/client"
 	"reflect"
 	"sync"
 	"testing"
@@ -23,19 +22,19 @@ func TestLock(t *testing.T) {
 			fmt.Printf("启动%s\n", name)
 			time.Sleep(time.Second)
 			mtx.Lock()
-			reply, err := client.Client.Do("setnx", key, name)
+			reply, err := c.SetNX(key, name, 0).Result()
 			mtx.Unlock()
 			if err != nil {
 				fmt.Printf("%s %+v\n", name, err)
 				wg.Done()
 				return
 			}
-			fmt.Printf("%s %d\n", name, reply)
+			fmt.Printf("%s %v\n", name, reply)
 			if reflect.ValueOf(reply).Int() == 1 {
 				fmt.Printf("%s 获取锁成功\n", name)
 				mtx.Lock()
 				time.Sleep(1)
-				_, _ = client.Client.Do("del", key)
+				c.Del(key)
 				mtx.Unlock()
 			} else {
 				fmt.Printf("%s 获取锁失败\n", name)

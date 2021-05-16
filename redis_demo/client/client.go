@@ -2,15 +2,18 @@ package client
 
 import (
 	"fmt"
-	"github.com/garyburd/redigo/redis"
+	"github.com/go-redis/redis"
 )
 
-var Client redis.Conn
+var Client *redis.Client
 
 func init() {
-	var err error
-	Client, err = redis.Dial("tcp", "192.168.1.181:6379")
 
+	Client = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+
+	err := Client.Ping().Err()
 	if err != nil {
 		fmt.Println(err)
 	}
