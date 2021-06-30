@@ -2,7 +2,6 @@ package redis_demo
 
 import (
 	"fmt"
-	"reflect"
 	"sync"
 	"testing"
 	"time"
@@ -30,7 +29,7 @@ func TestLock(t *testing.T) {
 				return
 			}
 			fmt.Printf("%s %v\n", name, reply)
-			if reflect.ValueOf(reply).Int() == 1 {
+			if reply {
 				fmt.Printf("%s 获取锁成功\n", name)
 				mtx.Lock()
 				time.Sleep(1)
