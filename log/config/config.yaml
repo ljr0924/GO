@@ -1,0 +1,4 @@
+configpath:
+  logdir1: "../log_dir1/log.txt"
+  logdir2: "../log_dir2/log.txt"
+  logdir3: "../log_dir3/log.txt"
