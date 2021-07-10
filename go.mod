@@ -10,8 +10,8 @@ require (
 	github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6 // indirect
 	github.com/astaxie/beego v1.12.3 // indirect
 	github.com/bsm/sarama-cluster v2.1.15+incompatible // indirect
-	github.com/coreos/etcd v3.3.10+incompatible // indirect
 	github.com/coreos/go-etcd v2.0.0+incompatible // indirect
+	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
 	github.com/hpcloud/tail v1.0.0
 	github.com/matryer/way v0.0.0-20180416093233-9632d0c407b0

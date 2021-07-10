@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"fmt"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"path"
 	"runtime"
@@ -14,7 +15,7 @@ var onceLogConfig sync.Once
 type Config struct {
 	Key    string
 	Value  string
-	cancel context.CancelFunc
+	Cancel context.CancelFunc
 }
 
 
@@ -39,4 +40,31 @@ func ReadConfig(v *viper.Viper) (interface{}, bool) {
 	}
 
 	return configPaths, true
+}
+
+func WatchConfig(ctx context.Context, v *viper.Viper, pathChan chan interface{}) {
+
+	defer func() {
+		onceLogConfig.Do(func() {
+			fmt.Println("watch config goroutine exists")
+			if err := recover(); err != nil {
+				fmt.Println("watch config goroutine panic ", err)
+			}
+			close(pathChan)
+		})
+	}()
+
+	// 设置监听回调参数
+	v.OnConfigChange(func(event fsnotify.Event) {
+		configPaths := v.Get("configpath")
+		if configPaths == nil {
+			return
+		}
+		pathChan <- configPaths
+	})
+
+	// 开始监听
+	v.WatchConfig()
+
+	<-ctx.Done()
 }
