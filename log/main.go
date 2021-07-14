@@ -5,23 +5,46 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"go_demo/log/config"
+	logtail "go_demo/log/log_tail"
 	"sync"
+	"time"
 )
 
 var mainOnce sync.Once
 var configMgr map[string]*config.Config
 
-func ConstructMgr(configPaths interface{}) {
+func ConstructMgr(configPaths interface{}, keyChan chan string) {
 	configDatas := configPaths.(map[string]interface{})
 	for configKey, configVal := range configDatas {
-		configData := new(config.Config)
-		configData.Key = configKey
-		configData.Value = configVal.(string)
-
-		_, cancel := context.WithCancel(context.Background())
-		configData.Cancel = cancel
-		configMgr[configKey] = configData
+		Start(configKey, configVal.(string), keyChan)
 	}
+}
+
+func Start(key, path string, keyChan chan string) {
+	configData := new(config.Config)
+	configData.Key = key
+	configData.Value = path
+	ctx, cancel := context.WithCancel(context.Background())
+	configData.Cancel = cancel
+	configMgr[key] = configData
+	// 启动协程监听日志文件
+	go logtail.WatchLogFile(key, path, ctx, keyChan)
+}
+
+func Restart(key string, keyChan chan string) {
+	c, ok := configMgr[key]
+	if !ok {
+		fmt.Printf("%s not exists", key)
+		return
+	}
+	// 先取消旧的
+	c.Cancel()
+
+	// 重启新的
+	ctx, cancel := context.WithCancel(context.Background())
+	c.Cancel = cancel
+	// 启动协程监听日志文件
+	go logtail.WatchLogFile(key, c.Value, ctx, keyChan)
 }
 
 func main() {
@@ -34,8 +57,10 @@ func main() {
 		return
 	}
 
+	keyChan := make(chan string, 4)
+
 	configMgr = make(map[string]*config.Config)
-	ConstructMgr(configPaths)
+	ConstructMgr(configPaths, keyChan)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	pathChan := make(chan interface{})
@@ -46,7 +71,12 @@ func main() {
 			if err := recover(); err != nil {
 				fmt.Println("main goroutine panic ", err)
 			}
+			// 销毁监听文件的协程
 			cancel()
+			for _, oldVal := range configMgr {
+				oldVal.Cancel()
+			}
+			configMgr = nil
 		})
 	}()
 
@@ -74,20 +104,14 @@ func main() {
 			// 更新配置
 			for configKey, configVal := range pathDataNew {
 				oldVal, ok := configMgr[configKey]
+				// 没找到 创建新的协程监听日志文件
 				if !ok {
-					configData := new(config.Config)
-					configData.Key = configKey
-					configData.Value = configVal.(string)
-					_, cancel := context.WithCancel(context.Background())
-					configData.Cancel = cancel
-					configMgr[configKey] = configData
+					Start(configKey, configVal.(string), keyChan)
 					continue
 				}
+				// 同一个key，不同的路径，先停掉原来的，再重新开一个新的
 				if oldVal.Value != configVal.(string) {
-					oldVal.Value = configVal.(string)
-					oldVal.Cancel()
-					_, cancel := context.WithCancel(context.Background())
-					oldVal.Cancel = cancel
+					Restart(configKey, keyChan)
 					continue
 				}
 			}
@@ -95,6 +119,10 @@ func main() {
 			for mgrKey, mgrVal := range configMgr {
 				fmt.Println(mgrKey, mgrVal)
 			}
+		case key := <- keyChan:
+			fmt.Printf("restart %s after 5 second\n", key)
+			time.Sleep(5 * time.Second)
+			Restart(key, keyChan)
 		}
 	}
 

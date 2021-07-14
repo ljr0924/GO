@@ -1,5 +1,5 @@
 configpath:
-  logdir1: "../log_dir1/log.txt"
-  logdir2: "../log_dir2/log.txt"
-  logdir3: "../log_dir3/log.txt"
-  logdir4: "../log_dir4/log.txt"
+  logdir1: "/Users/banana/git_project/GO/log/log_dir1/log.log"
+  logdir2: "/Users/banana/git_project/GO/log/log_dir2/log.log"
+  logdir3: "/Users/banana/git_project/GO/log/log_dir3/log.log"
+  logdir4: "/Users/banana/git_project/GO/log/log_dir4/log.log"

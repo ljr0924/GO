@@ -1,4 +1,4 @@
-package main
+package log_tail
 
 import (
 	"bufio"
@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	logRelative := "../log_dir/log.txt"
+	logRelative := "../log_dir/log.log"
 	_, filePath, _, _ := runtime.Caller(0)
 	fmt.Println(filePath)
 
@@ -64,7 +64,7 @@ func writeLog(dataPath string) {
 		w.Flush()
 	}
 
-	logBak := time.Now().Format("20060102150405") + ".txt"
+	logBak := time.Now().Format("20060102150405") + ".log"
 	logBak = path.Join(path.Dir(dataPath), logBak)
 
 	logFile.Close()
