@@ -13,7 +13,6 @@ func TestSpeedControl(t *testing.T) {
 		B int
 	}
 
-
 	var ch1 = make(chan *task, 10)
 	go func() {
 		t1 := time.Now().Unix()
@@ -21,6 +20,7 @@ func TestSpeedControl(t *testing.T) {
 			ch1 <- &task{i, i+1}
 		}
 		close(ch1)
+		t.Log("生产结束")
 		t.Logf("生产者 %ds", time.Now().Unix() - t1)
 	}()
 
@@ -30,7 +30,7 @@ func TestSpeedControl(t *testing.T) {
 		go func(index int) {
 			t.Logf("协程%d开始执行", index)
 			for tmp := range ch1 {
-				t.Logf("协程%d执行结果%d", index, tmp.A+tmp.B)
+				t.Logf("协程%d执行结果 %d", index, tmp.A+tmp.B)
 				time.Sleep(time.Second)
 			}
 			t.Logf("协程%d结束任务", index)
