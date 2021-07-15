@@ -17,10 +17,6 @@ func WatchLogFile(key string, dataPath string, ctx context.Context, keyChan chan
 		}
 	}()
 
-	if key == "logdir3" {
-		panic("测试panic")
-	}
-
 	fmt.Println("begin goroutine watch log file ", dataPath)
 
 	tailFile, err := tail.TailFile(dataPath, tail.Config{

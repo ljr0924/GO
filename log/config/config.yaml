@@ -3,3 +3,9 @@ configpath:
   logdir2: "/Users/banana/git_project/GO/log/log_dir2/log.log"
   logdir3: "/Users/banana/git_project/GO/log/log_dir3/log.log"
   logdir4: "/Users/banana/git_project/GO/log/log_dir4/log.log"
+
+kafka:
+  addr:
+    - "172.20.10.3:19092"
+    - "172.20.10.3:19093"
+    - "172.20.10.3:19094"

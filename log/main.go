@@ -50,10 +50,20 @@ func Restart(key string, keyChan chan string) {
 func main() {
 
 	v := viper.New()
-	configPaths, ok := config.ReadConfig(v)
-
-	if configPaths == nil || !ok {
+	v, ok := config.ReadConfig(v)
+	if !ok {
 		fmt.Println("read config err")
+		return
+	}
+
+	configPaths := v.Get("configpath")
+	if configPaths == nil  {
+		fmt.Println("configpath is empty")
+		return
+	}
+	kafkaAddr := v.Get("kafka.addr")
+	if kafkaAddr == nil {
+		fmt.Println("kafka.addr is empty")
 		return
 	}
 
@@ -63,8 +73,12 @@ func main() {
 	ConstructMgr(configPaths, keyChan)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	pathChan := make(chan interface{})
-	go config.WatchConfig(ctx, v, pathChan)
+	key2chan := make(map[string]chan interface{})
+	configPathsChan := make(chan interface{})
+	kafkaAddrChan := make(chan interface{})
+	key2chan[config.KConfigPaths] = configPathsChan
+	key2chan[config.KKafkaAddr] = kafkaAddrChan
+	go config.WatchConfig(ctx, v, key2chan)
 
 	defer func() {
 		mainOnce.Do(func() {
@@ -82,7 +96,7 @@ func main() {
 
 	for {
 		select {
-		case pathData, ok := <-pathChan:
+		case pathData, ok := <- configPathsChan:
 			if !ok {
 				return
 			}
@@ -119,6 +133,14 @@ func main() {
 			for mgrKey, mgrVal := range configMgr {
 				fmt.Println(mgrKey, mgrVal)
 			}
+		case addrList, ok := <- kafkaAddrChan:
+			if !ok {
+				continue
+			}
+			for _, a := range addrList.([]interface{}) {
+				fmt.Println("new addr: ", a)
+			}
+
 		case key := <- keyChan:
 			fmt.Printf("restart %s after 5 second\n", key)
 			time.Sleep(5 * time.Second)

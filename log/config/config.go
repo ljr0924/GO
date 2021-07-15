@@ -18,8 +18,13 @@ type Config struct {
 	Cancel context.CancelFunc
 }
 
+const (
+	KConfigPaths = "configpath"
+	KKafkaAddr = "kafka.addr"
+)
 
-func ReadConfig(v *viper.Viper) (interface{}, bool) {
+
+func ReadConfig(v *viper.Viper) (*viper.Viper, bool) {
 	// 设置读取配置文件
 	v.SetConfigName("config")
 	// 添加读取的配置文件路径
@@ -34,15 +39,11 @@ func ReadConfig(v *viper.Viper) (interface{}, bool) {
 		fmt.Printf("err: %s\n", err.Error())
 		return nil, false
 	}
-	configPaths := v.Get("configpath")
-	if configPaths == nil {
-		return nil, false
-	}
 
-	return configPaths, true
+	return v, true
 }
 
-func WatchConfig(ctx context.Context, v *viper.Viper, pathChan chan interface{}) {
+func WatchConfig(ctx context.Context, v *viper.Viper, key2chan map[string]chan interface{}) {
 
 	defer func() {
 		onceLogConfig.Do(func() {
@@ -50,17 +51,29 @@ func WatchConfig(ctx context.Context, v *viper.Viper, pathChan chan interface{})
 			if err := recover(); err != nil {
 				fmt.Println("watch config goroutine panic ", err)
 			}
-			close(pathChan)
+			for _, c := range key2chan {
+				close(c)
+			}
 		})
 	}()
 
 	// 设置监听回调参数
 	v.OnConfigChange(func(event fsnotify.Event) {
-		configPaths := v.Get("configpath")
-		if configPaths == nil {
-			return
+		// 更新所有key
+		updateConfig := func(keys ...string) {
+			for _, k := range keys {
+				data := v.Get(k)
+				if data != nil {
+					if _, ok := key2chan[k]; !ok {
+						key2chan[k] = make(chan interface{})
+					}
+					key2chan[k] <- data
+				}
+			}
 		}
-		pathChan <- configPaths
+
+		updateConfig(KConfigPaths, KKafkaAddr)
+
 	})
 
 	// 开始监听
