@@ -46,6 +46,6 @@ func (k *KafProducer) PutIntoKafka(keyStr, valStr string) {
 		fmt.Println(err.Error())
 		return
 	}
-	fmt.Printf("Partition = %d, offset = %d, value = %s", partition, offset, valStr)
+	fmt.Printf("partition = %d, offset = %d, value = %s", partition, offset, valStr)
 
 }

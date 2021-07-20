@@ -134,13 +134,13 @@ func main() {
 				fmt.Println(mgrKey, mgrVal)
 			}
 		case addrList, ok := <- kafkaAddrChan:
+			// 监听kafka的地址是否发生变化
 			if !ok {
 				continue
 			}
 			for _, a := range addrList.([]interface{}) {
 				fmt.Println("new addr: ", a)
 			}
-
 		case key := <- keyChan:
 			fmt.Printf("restart %s after 5 second\n", key)
 			time.Sleep(5 * time.Second)
