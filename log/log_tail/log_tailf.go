@@ -40,6 +40,7 @@ func WatchLogFile(key string, dataPath string, ctx context.Context, keyChan chan
 				continue
 			}
 			fmt.Println("msg: ", msg.Text)
+
 		case <- ctx.Done():
 			fmt.Println("receive main goroutine exit msg")
 			fmt.Println("watch log file ", dataPath, " goroutine exited" )
