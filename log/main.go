@@ -11,28 +11,44 @@ import (
 )
 
 var mainOnce sync.Once
-var configMgr map[string]*config.Config
+var configMgr *ConfigMgr
 
-func ConstructMgr(configPaths interface{}, keyChan chan string) {
-	configDatas := configPaths.(map[string]interface{})
-	for configKey, configVal := range configDatas {
-		Start(configKey, configVal.(string), keyChan)
+type ConfigMgr struct {
+	Mgr map[string]*config.Config
+}
+
+func NewConfigMgr() *ConfigMgr {
+	return &ConfigMgr{
+		Mgr: make(map[string]*config.Config),
 	}
 }
 
-func Start(key, path string, keyChan chan string) {
+func (m *ConfigMgr) Construct(configPaths interface{}, keyChan chan string) {
+	configDatas := configPaths.(map[string]interface{})
+	for configKey, configVal := range configDatas {
+		m.Start(configKey, configVal.(string), keyChan)
+	}
+}
+
+func (m *ConfigMgr) Destroy() {
+	for _, v := range m.Mgr {
+		v.Cancel()
+	}
+}
+
+func (m *ConfigMgr) Start(key, path string, keyChan chan string) {
 	configData := new(config.Config)
 	configData.Key = key
 	configData.Value = path
 	ctx, cancel := context.WithCancel(context.Background())
 	configData.Cancel = cancel
-	configMgr[key] = configData
+	m.Mgr[key] = configData
 	// 启动协程监听日志文件
 	go logtail.WatchLogFile(key, path, ctx, keyChan)
 }
 
-func Restart(key string, keyChan chan string) {
-	c, ok := configMgr[key]
+func (m *ConfigMgr) Restart(key string, keyChan chan string) {
+	c, ok := m.Mgr[key]
 	if !ok {
 		fmt.Printf("%s not exists", key)
 		return
@@ -69,8 +85,8 @@ func main() {
 
 	keyChan := make(chan string, 4)
 
-	configMgr = make(map[string]*config.Config)
-	ConstructMgr(configPaths, keyChan)
+	configMgr = NewConfigMgr()
+	configMgr.Construct(configPaths, keyChan)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	key2chan := make(map[string]chan interface{})
@@ -85,11 +101,10 @@ func main() {
 			if err := recover(); err != nil {
 				fmt.Println("main goroutine panic ", err)
 			}
-			// 销毁监听文件的协程
+			// 销毁监听配置文件的协程
 			cancel()
-			for _, oldVal := range configMgr {
-				oldVal.Cancel()
-			}
+			// 销毁监听日志文件携程
+			configMgr.Destroy()
 			configMgr = nil
 		})
 	}()
@@ -106,31 +121,32 @@ func main() {
 			pathDataNew := pathData.(map[string]interface{})
 
 			// 先将已清除的停掉
-			for oldKey, oldVal := range configMgr {
+			for oldKey, oldVal := range configMgr.Mgr {
 				_, ok := pathDataNew[oldKey]
 				if ok {
 					continue
 				}
 				oldVal.Cancel()
-				delete(configMgr, oldKey)
+				delete(configMgr.Mgr, oldKey)
 			}
 
 			// 更新配置
 			for configKey, configVal := range pathDataNew {
-				oldVal, ok := configMgr[configKey]
+				oldVal, ok := configMgr.Mgr[configKey]
 				// 没找到 创建新的协程监听日志文件
 				if !ok {
-					Start(configKey, configVal.(string), keyChan)
+					configMgr.Start(configKey, configVal.(string), keyChan)
 					continue
 				}
 				// 同一个key，不同的路径，先停掉原来的，再重新开一个新的
 				if oldVal.Value != configVal.(string) {
-					Restart(configKey, keyChan)
+					oldVal.Cancel()
+					configMgr.Start(configKey, configVal.(string), keyChan)
 					continue
 				}
 			}
 
-			for mgrKey, mgrVal := range configMgr {
+			for mgrKey, mgrVal := range configMgr.Mgr {
 				fmt.Println(mgrKey, mgrVal)
 			}
 		case addrList, ok := <- kafkaAddrChan:
@@ -144,7 +160,7 @@ func main() {
 		case key := <- keyChan:
 			fmt.Printf("restart %s after 5 second\n", key)
 			time.Sleep(5 * time.Second)
-			Restart(key, keyChan)
+			configMgr.Restart(key, keyChan)
 		}
 	}
 
