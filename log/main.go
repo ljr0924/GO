@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/spf13/viper"
 	"go_demo/log/config"
+	"go_demo/log/kafka"
 	logtail "go_demo/log/log_tail"
 	"sync"
 	"time"
@@ -15,14 +16,17 @@ var configMgr *ConfigMgr
 
 type ConfigMgr struct {
 	Mgr map[string]*config.Config
+	Producer *kafka.KafProducer
 }
 
-func NewConfigMgr() *ConfigMgr {
+func NewConfigMgr(p *kafka.KafProducer) *ConfigMgr {
 	return &ConfigMgr{
-		Mgr: make(map[string]*config.Config),
+		Mgr:      make(map[string]*config.Config),
+		Producer: p,
 	}
 }
 
+// Construct 初始化
 func (m *ConfigMgr) Construct(configPaths interface{}, keyChan chan string) {
 	configDatas := configPaths.(map[string]interface{})
 	for configKey, configVal := range configDatas {
@@ -30,12 +34,14 @@ func (m *ConfigMgr) Construct(configPaths interface{}, keyChan chan string) {
 	}
 }
 
+// Destroy 销毁所有监听log的协程
 func (m *ConfigMgr) Destroy() {
 	for _, v := range m.Mgr {
 		v.Cancel()
 	}
 }
 
+// Start 开启监听日志文件协程
 func (m *ConfigMgr) Start(key, path string, keyChan chan string) {
 	configData := new(config.Config)
 	configData.Key = key
@@ -44,9 +50,10 @@ func (m *ConfigMgr) Start(key, path string, keyChan chan string) {
 	configData.Cancel = cancel
 	m.Mgr[key] = configData
 	// 启动协程监听日志文件
-	go logtail.WatchLogFile(key, path, ctx, keyChan)
+	go logtail.WatchLogFile(ctx, key, path, m.Producer, keyChan)
 }
 
+// Restart 开启监听日志文件协程
 func (m *ConfigMgr) Restart(key string, keyChan chan string) {
 	c, ok := m.Mgr[key]
 	if !ok {
@@ -60,7 +67,7 @@ func (m *ConfigMgr) Restart(key string, keyChan chan string) {
 	ctx, cancel := context.WithCancel(context.Background())
 	c.Cancel = cancel
 	// 启动协程监听日志文件
-	go logtail.WatchLogFile(key, c.Value, ctx, keyChan)
+	go logtail.WatchLogFile(ctx, key, c.Value, m.Producer, keyChan)
 }
 
 func main() {
@@ -85,7 +92,12 @@ func main() {
 
 	keyChan := make(chan string, 4)
 
-	configMgr = NewConfigMgr()
+	p, err := kafka.NewKafProducer(kafkaAddr.([]string))
+	if err != nil {
+		fmt.Println("create kafka err")
+		return
+	}
+	configMgr = NewConfigMgr(p)
 	configMgr.Construct(configPaths, keyChan)
 
 	ctx, cancel := context.WithCancel(context.Background())

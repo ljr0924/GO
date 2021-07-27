@@ -5,6 +5,15 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+func NewKafProducer(addr []string) (*KafProducer, error) {
+	p, err := CreateKafkaProducer(addr)
+	if err != nil {
+		fmt.Errorf("create kafka error: %s", err.Error())
+		return nil, err
+	}
+	return &KafProducer{Producer: p}, nil
+}
+
 func CreateKafkaProducer(addr []string) (sarama.SyncProducer, error) {
 
 	config := sarama.NewConfig()

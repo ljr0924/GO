@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/hpcloud/tail"
+	"go_demo/log/kafka"
 	"time"
 )
 
-func WatchLogFile(key string, dataPath string, ctx context.Context, keyChan chan<- string) {
+func WatchLogFile(ctx context.Context, key string, dataPath string, producer *kafka.KafProducer, keyChan chan<- string) {
 
 	defer func() {
 		if errCover := recover(); errCover != nil {
@@ -39,7 +40,9 @@ func WatchLogFile(key string, dataPath string, ctx context.Context, keyChan chan
 				time.Sleep(100 * time.Millisecond)
 				continue
 			}
-			fmt.Println("msg: ", msg.Text)
+
+			// 写入kafka
+			producer.PutIntoKafka(key, msg.Text)
 
 		case <- ctx.Done():
 			fmt.Println("receive main goroutine exit msg")
