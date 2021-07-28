@@ -89,10 +89,14 @@ func main() {
 		fmt.Println("kafka.addr is empty")
 		return
 	}
+	var addrList []string
+	for _, a := range kafkaAddr.([]interface{}) {
+		addrList = append(addrList, a.(string))
+	}
 
 	keyChan := make(chan string, 4)
 
-	p, err := kafka.NewKafProducer(kafkaAddr.([]string))
+	p, err := kafka.NewKafProducer(addrList)
 	if err != nil {
 		fmt.Println("create kafka err")
 		return

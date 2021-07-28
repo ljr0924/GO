@@ -71,7 +71,7 @@ func TestSaramaConsumer(t *testing.T) {
 
 	t.Logf("topics: %v", topics)
 
-	topic := "test1"
+	topic := "logs"
 
 	partitions, err := c.Partitions(topic)
 	if err != nil {
@@ -120,6 +120,5 @@ func TestSaramaConsumer(t *testing.T) {
 	}
 
 	wg.Wait()
-
 
 }
