@@ -1,0 +1,61 @@
+{
+  "errcode": 0,
+  "errmsg": "ok",
+  "group_chat": {
+    "chat_id": "wrfd4MDAAAKeAWt76faLg5Ph61XO1sRw",
+    "name": "测试获取企微数据",
+    "owner": "dd02cb69337e51e392af74cc3273cc40",
+    "create_time": 1625908351,
+    "member_list": [
+      {
+        "userid": "wofd4MDAAArq7mN0tYBmnEENHV86pgoQ",
+        "type": 2,
+        "join_time": 1625908640,
+        "join_scene": 1,
+        "state": "",
+        "group_nickname": ""
+      },
+      {
+        "userid": "dd02cb69337e51e392af74cc3273cc40",
+        "type": 1,
+        "join_time": 1625908352,
+        "join_scene": 1,
+        "invitor": {
+          "userid": "dd02cb69337e51e392af74cc3273cc40"
+        },
+        "group_nickname": ""
+      },
+      {
+        "userid": "wofd4MDAAAloaJC4dkAfRKDwE3TlEkgw",
+        "type": 2,
+        "join_time": 1625908352,
+        "join_scene": 1,
+        "invitor": {
+          "userid": "dd02cb69337e51e392af74cc3273cc40"
+        },
+        "group_nickname": ""
+      },
+      {
+        "userid": "wmfd4MDAAACIuswX1eJlSKuJbim7RjRg",
+        "type": 2,
+        "join_time": 1625908591,
+        "join_scene": 1,
+        "unionid": "o0e8ts7HIVQ6VNutilAGjY54aOZo",
+        "state": "",
+        "group_nickname": ""
+      },
+      {
+        "userid": "wmfd4MDAAA47q_rGl0_pTDLf-4ogFPGg",
+        "type": 2,
+        "join_time": 1625908352,
+        "join_scene": 1,
+        "unionid": "o0e8ts1hBXTvxah0u7OMyreyuErQ",
+        "invitor": {
+          "userid": "dd02cb69337e51e392af74cc3273cc40"
+        },
+        "group_nickname": ""
+      }
+    ],
+    "admin_list": []
+  }
+}

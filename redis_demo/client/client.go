@@ -10,7 +10,7 @@ var Client *redis.Client
 func init() {
 
 	Client = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: "localhost:16379",
 	})
 
 	err := Client.Ping().Err()

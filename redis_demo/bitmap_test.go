@@ -1,8 +1,9 @@
 package redis_demo
 
 import (
-    "go_demo/redis_demo/client"
     "testing"
+
+    "go_demo/redis_demo/client"
 )
 
 var c = client.Client
