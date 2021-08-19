@@ -1,11 +1,11 @@
 configpath:
-  logdir1: "/Users/banana/git_project/GO/log/log_dir1/log.log"
-  logdir2: "/Users/banana/git_project/GO/log/log_dir2/log.log"
-  logdir3: "/Users/banana/git_project/GO/log/log_dir3/log.log"
-  logdir4: "/Users/banana/git_project/GO/log/log_dir4/log.log"
+  logdir1: "E:\\my_git\\GO\\log\\log_dir1\\log.log"
+  logdir2: "E:\\my_git\\GO\\log\\log_dir2\\log.log"
+  logdir3: "E:\\my_git\\GO\\log\\log_dir3\\log.log"
+  logdir4: "E:\\my_git\\GO\\log\\log_dir4\\log.log"
 
 kafka:
   addr:
-    - "172.20.10.3:19092"
-    - "172.20.10.3:19093"
-    - "172.20.10.3:19094"
+    - "192.168.2.167:19092"
+    - "192.168.2.167:19093"
+    - "192.168.2.167:19094"

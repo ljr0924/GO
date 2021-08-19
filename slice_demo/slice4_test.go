@@ -33,3 +33,18 @@ func TestCopy(t *testing.T) {
     t.Log(n, s2)
 
 }
+
+type Data struct {
+    List []int
+}
+
+func TestAppend(t *testing.T) {
+
+    d := Data{}
+
+    for i := 0; i < 10; i++ {
+        d.List = append(d.List, i)
+    }
+
+    t.Log(d)
+}
