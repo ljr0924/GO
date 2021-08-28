@@ -1,12 +1,47 @@
 package kafka
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/Shopify/sarama"
 	"os"
 	"os/signal"
 	"sync"
+
+	"github.com/Shopify/sarama"
+	"go.mongodb.org/mongo-driver/mongo"
 )
+
+type Detail struct {
+	Name string `bson:"name" json:"name"`
+	Ip   string `bson:"ip" json:"ip"`
+}
+
+type Log struct {
+	Key    string `json:"key" bson:"key"`
+	Detail *Detail
+}
+
+func ProcessMsg(coll *mongo.Collection, msg *sarama.ConsumerMessage) error {
+
+	var detail Detail
+	err := json.Unmarshal(msg.Value, &detail)
+	if err != nil {
+		return err
+	}
+
+	log := &Log{
+		Key:    string(msg.Key),
+		Detail: &detail,
+	}
+
+	_, err = coll.InsertOne(context.TODO(), log)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func ConsumeLog(addr []string) {
 
@@ -55,19 +90,25 @@ func ConsumeLog(addr []string) {
 
 	wg.Add(len(pcList))
 
+	coll := GetCollLog()
+
 	for _, c := range pcList {
 		defer (*c).AsyncClose()
 		go func(cp sarama.PartitionConsumer) {
 			fmt.Println("start")
 			for {
 				select {
-				case msg := <- cp.Messages():
+				case msg := <-cp.Messages():
 					fmt.Printf("get message from topic: %s partition: %d ---> key: %s, value: %s\n", msg.Topic, msg.Partition, msg.Key, msg.Value)
-				case err := <- cp.Errors():
+					err := ProcessMsg(coll, msg)
+					if err != nil {
+						fmt.Printf("process msg err: %s", err.Error())
+					}
+				case err := <-cp.Errors():
 					fmt.Printf("get message from topic: %s partition: %d ---> %s\n", err.Topic, err.Partition, err.Err.Error())
 					wg.Done()
 					return
-				case <- signals:
+				case <-signals:
 					fmt.Println("stop")
 					wg.Done()
 					return
