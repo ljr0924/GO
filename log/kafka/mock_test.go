@@ -19,10 +19,10 @@ func TestMockLog(t *testing.T) {
 	}
 
 	logDirs := []string{
-		"/Users/banana/git_project/GO/log/log_dir1/log.log",
-		"/Users/banana/git_project/GO/log/log_dir2/log.log",
-		"/Users/banana/git_project/GO/log/log_dir3/log.log",
-		"/Users/banana/git_project/GO/log/log_dir4/log.log",
+		"E:\\my_git\\GO\\log\\log_dir1\\log.log",
+		"E:\\my_git\\GO\\log\\log_dir2\\log.log",
+		"E:\\my_git\\GO\\log\\log_dir3\\log.log",
+		"E:\\my_git\\GO\\log\\log_dir4\\log.log",
 	}
 
 	signals := make(chan os.Signal, 1)
@@ -33,7 +33,7 @@ func TestMockLog(t *testing.T) {
 
 	for _, d := range logDirs {
 		go func(addr string) {
-			file, err := os.OpenFile(addr, os.O_APPEND|os.O_WRONLY, 0666)
+			file, err := os.OpenFile(addr, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
 			if err != nil {
 				t.Logf("open file err: %s", err.Error())
 				wg.Done()
