@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/spf13/viper"
 	"go_demo/log/config"
 	"go_demo/log/kafka"
 	logtail "go_demo/log/log_tail"
-	"sync"
-	"time"
 )
 
 var mainOnce sync.Once
