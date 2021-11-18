@@ -1,6 +1,6 @@
 module go_demo
 
-go 1.14
+go 1.17
 
 require (
 	github.com/Shopify/sarama v1.27.2
