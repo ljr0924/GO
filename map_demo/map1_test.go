@@ -41,6 +41,6 @@ func TestMap1(t *testing.T) {
     }
 
     // map长度
-    fmt.Printf("map 长度： %d, 容量：%d", len(profileMake))
+    fmt.Printf("map 长度： %d, 容量：%d", len(profileMake), len(profileMake))
 
 }

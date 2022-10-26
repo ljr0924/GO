@@ -7,7 +7,7 @@ func TestMapRange(t *testing.T) {
     m := make(map[string]int)
 
     for i := 0; i < 10; i++ {
-        m[string('a'+i)] = i
+        m[string(rune('a'+i))] = i
     }
 
     // 每次打印顺序不一样
