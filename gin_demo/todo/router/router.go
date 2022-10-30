@@ -1,7 +1,7 @@
 package router
 
 import (
-	"go_demo/gin_demo/todo/controller"
+	todoController "go_demo/gin_demo/todo/controller"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,12 +9,14 @@ import (
 var router = gin.Default()
 
 func InitRouter() {
-	todoController := &controller.TodoController{}
-	router.GET("/todo/list", todoController.GetList)
-	router.GET("/todo/one", todoController.GetOne)
-	router.POST("/todo/", todoController.Add)
-	router.PUT("/todo/", todoController.Edit)
-	router.DELETE("/todo/", todoController.Delete)
+	todoRouter := router.Group("/todo")
+	{
+		todoRouter.GET("/list", todoController.GetList)
+		todoRouter.GET("/one", todoController.GetOne)
+		todoRouter.POST("/", todoController.Add)
+		todoRouter.PUT("/", todoController.Edit)
+		todoRouter.DELETE("/", todoController.Delete)
+	}
 }
 
 func Run(addr ...string) {

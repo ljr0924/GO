@@ -1,28 +1,35 @@
 package controller
 
-import "github.com/gin-gonic/gin"
+import (
+	"log"
+
+	"github.com/gin-gonic/gin"
+)
 
 type Todo struct {
 	Content string `json:"content"`
 }
 
-type TodoController struct {
-}
+func GetList(c *gin.Context) {
+	var args GetListArgs
+	err := c.ShouldBindQuery(&args)
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(400, ArgsErrResp(err.Error()))
+		return
+	}
 
-func (tc *TodoController) GetList(c *gin.Context) {
+	log.Println(args)
+
 	todoList := []*Todo{
 		{"todo1"},
 		{"todo2"},
 		{"todo3"},
 	}
-	c.JSON(200, gin.H{
-		"code": 100000,
-		"msg":  "success",
-		"data": todoList,
-	})
+	c.JSON(200, SuccessRespWithData(todoList))
 }
 
-func (tc *TodoController) GetOne(c *gin.Context) {
+func GetOne(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code": 100000,
 		"msg":  "success",
@@ -30,21 +37,21 @@ func (tc *TodoController) GetOne(c *gin.Context) {
 	})
 }
 
-func (tc *TodoController) Add(c *gin.Context) {
+func Add(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code": 100000,
 		"msg":  "success",
 	})
 }
 
-func (tc *TodoController) Edit(c *gin.Context) {
+func Edit(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code": 100000,
 		"msg":  "success",
 	})
 }
 
-func (tc *TodoController) Delete(c *gin.Context) {
+func Delete(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"code": 100000,
 		"msg":  "success",
