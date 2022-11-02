@@ -17,11 +17,13 @@ require (
 require (
 	github.com/beego/beego/v2 v2.0.2
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/ugorji/go v1.2.6 // indirect
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5 // indirect
-	golang.org/x/sys v0.0.0-20210818153620-00dd8d7831e7 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
+	gorm.io/driver/sqlite v1.4.3 // indirect
+	gorm.io/gorm v1.24.0 // indirect
 )
