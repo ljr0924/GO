@@ -28,7 +28,7 @@ func NewServer(ip string, port int) *Server {
 }
 
 func (s *Server) Broadcast(u *User, msg string) {
-	s.CMessage <- NewMsg(u, fmt.Sprintf("[%s]%s\n", u.Name, msg))
+	s.CMessage <- NewMsg(u, fmt.Sprintf("[%s]%s", u.Name, msg))
 }
 
 func (s *Server) MessageListener() {
@@ -47,7 +47,7 @@ func (s *Server) MessageListener() {
 
 func (s *Server) Online(u *User) {
 	s.onlineMapLock.Lock()
-	s.OnlineMap[u.Addr] = u
+	s.OnlineMap[u.Name] = u
 	s.onlineMapLock.Unlock()
 
 	s.Broadcast(u, fmt.Sprintf("%s，上线了\n", u.Name))
@@ -55,7 +55,7 @@ func (s *Server) Online(u *User) {
 
 func (s *Server) Offline(u *User) {
 	s.onlineMapLock.Lock()
-	delete(s.OnlineMap, u.Addr)
+	delete(s.OnlineMap, u.Name)
 	s.onlineMapLock.Unlock()
 	s.Broadcast(u, fmt.Sprintf("%s，下线了\n", u.Name))
 }
@@ -76,7 +76,17 @@ func (s *Server) MessageHandler(u *User) {
 		msg := string(data)
 		msgLen := len(msg)
 		if msgLen > 8 && msg[:8] == "set name" {
-			u.SetName(msg[9:])
+			newName := msg[9:]
+			_, ok := s.OnlineMap[newName]
+			if ok {
+				u.SendMsg(fmt.Sprintf("用户名<%s>已被使用\n", newName))
+			} else {
+				s.onlineMapLock.Lock()
+				delete(s.OnlineMap, u.Name)
+				s.OnlineMap[newName] = u
+				s.onlineMapLock.Unlock()
+				u.SetName(newName)
+			}
 		} else if msg == "who" {
 			s.onlineMapLock.RLock()
 			for _, onlineUser := range s.OnlineMap {

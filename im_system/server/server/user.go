@@ -38,6 +38,13 @@ func (u *User) Sender() {
 	}
 }
 
+func (u *User) SendMsg(msg string) {
+	_, err := u.conn.Write([]byte(msg))
+	if err != nil {
+		return
+	}
+}
+
 func (u *User) SetName(name string) {
 	u.Name = name
 }
