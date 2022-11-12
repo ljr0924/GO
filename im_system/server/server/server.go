@@ -1,14 +1,11 @@
 package server
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net"
 	"sync"
 )
-
-var CmdPrefix = []byte("call")
 
 type Server struct {
 	Ip   string
@@ -31,7 +28,7 @@ func NewServer(ip string, port int) *Server {
 }
 
 func (s *Server) Broadcast(u *User, msg string) {
-	s.CMessage <- NewMsg(u, fmt.Sprintf("[%s]%s", u.Name, msg))
+	s.CMessage <- NewMsg(u, fmt.Sprintf("[%s]%s\n", u.Name, msg))
 }
 
 func (s *Server) MessageListener() {
@@ -65,8 +62,8 @@ func (s *Server) Offline(u *User) {
 
 func (s *Server) MessageHandler(u *User) {
 	for {
-		msg := make([]byte, 1024)
-		n, err := u.conn.Read(msg)
+		data := make([]byte, 1024)
+		n, err := u.conn.Read(data)
 		if n == 0 {
 			s.Offline(u)
 			return
@@ -75,22 +72,29 @@ func (s *Server) MessageHandler(u *User) {
 			fmt.Printf("[%s]读取数据错误，error：%s", u.Addr, err)
 			return
 		}
-		msg = msg[:n-1]
-		if bytes.Equal(msg[:4], CmdPrefix) {
-			s.CmdHandler(u, msg[5:])
-		} else {
-			s.Broadcast(u, string(msg))
-		}
-	}
-}
+		data = data[:n-1]
+		msg := string(data)
+		msgLen := len(msg)
+		if msgLen > 8 && msg[:8] == "set name" {
+			u.SetName(msg[9:])
+		} else if msg == "who" {
+			s.onlineMapLock.RLock()
+			for _, onlineUser := range s.OnlineMap {
+				if onlineUser.Addr == u.Addr {
+					continue
+				}
+				row := fmt.Sprintf("[%s]%s，在线...\n", onlineUser.Addr, onlineUser.Name)
+				_, err := u.conn.Write([]byte(row))
+				if err != nil {
+					fmt.Println("发送在线用户名单失败，error：", err)
+					continue
+				}
+			}
+			s.onlineMapLock.RUnlock()
 
-func (s *Server) CmdHandler(u *User, cmd []byte) {
-	cmds := bytes.Split(cmd, []byte(" "))
-	cmdName, cmdValue := cmds[0], cmds[1]
-	// 设置用户名称
-	fmt.Printf("%s %v", cmdName, bytes.Equal(cmdName, []byte("setname")))
-	if bytes.Equal(cmdName, []byte("setname")) {
-		u.SetName(string(cmdValue))
+		} else {
+			s.Broadcast(u, msg)
+		}
 	}
 }
 
