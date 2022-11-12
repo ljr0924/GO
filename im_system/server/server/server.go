@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"sync"
 )
 
@@ -77,6 +78,7 @@ func (s *Server) MessageHandler(u *User) {
 		msgLen := len(msg)
 		if msgLen > 8 && msg[:8] == "set name" {
 			newName := msg[9:]
+			newName = strings.TrimSpace(newName)
 			_, ok := s.OnlineMap[newName]
 			if ok {
 				u.SendMsg(fmt.Sprintf("用户名<%s>已被使用\n", newName))
@@ -102,6 +104,22 @@ func (s *Server) MessageHandler(u *User) {
 			}
 			s.onlineMapLock.RUnlock()
 
+		} else if msgLen > 3 && msg[:3] == "to " {
+			subMsg := msg[3:]
+			msgData := strings.SplitN(subMsg, " ", 2)
+			if len(msgData) == 1 {
+				u.SendMsg("消息格式错误")
+				continue
+			}
+			toUserName, content := msgData[0], msgData[1]
+			toUser, ok := s.OnlineMap[toUserName]
+			if !ok {
+				u.SendMsg(fmt.Sprintf("不存在用户<%s>", toUserName))
+				continue
+			}
+
+			// 发送消息
+			toUser.SendMsg(u.Name + "对您说：" + content + "\n")
 		} else {
 			s.Broadcast(u, msg)
 		}
