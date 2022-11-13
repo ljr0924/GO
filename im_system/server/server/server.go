@@ -58,6 +58,7 @@ func (s *Server) Offline(u *User) {
 	s.onlineMapLock.Lock()
 	delete(s.OnlineMap, u.Name)
 	s.onlineMapLock.Unlock()
+	fmt.Println(u.Name + "，下线了")
 	s.Broadcast(u, fmt.Sprintf("%s，下线了\n", u.Name))
 }
 
